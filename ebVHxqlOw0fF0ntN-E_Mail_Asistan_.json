@@ -1,0 +1,161 @@
+{
+  "name": "E-Mail Asistanı",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        80,
+        208
+      ],
+      "id": "049da956-43fc-4e5c-bd73-7682f0ca33d3",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "Sen bir e-posta analiz ve raporlama asistanısın.\n\nGmail hesabına gelen e-postaları incele ve günlük e-posta raporu hazırla. Kullanıcıyla sohbet etme. Sadece analiz yap ve hazırladığın raporu e-posta olarak gönder.\n\n1. TÜM E-POSTALARI İNCELE\n\nBugün gelen tüm e-postaları incele. Her e-postanın gönderenini, konusunu ve içeriğini oku.\n\nBir e-postayı yalnızca içeriğinde açıkça \"önemli\" kelimesi geçtiği için önemli kabul etme. İçeriğin kullanıcı açısından gerektirdiği eylemi ve zaman bilgisini değerlendir.\n\n2. ÖNEMLİ E-POSTA KRİTERLERİ\n\nAşağıdakilerden en az biri varsa e-postayı önemli kabul et:\n\nToplantı, görüşme, randevu veya etkinlik bildiriyorsa\nBelirli bir tarih veya saat içeriyorsa ve kullanıcının bunu bilmesi veya katılması gerekiyorsa\nKullanıcının bir işlem yapmasını gerektiriyorsa\nKullanıcıdan cevap bekleniyorsa\nSon tarih / deadline içeriyorsa\nÖdeme, fatura veya finansal işlem içeriyorsa\nİş, okul veya kişisel planlamayı etkileyebilecek bir bilgi içeriyorsa\nAcil veya zaman hassasiyeti olan bir durum içeriyorsa\nKullanıcının karar vermesini gerektiriyorsa\n3. AKSİYON GEREKTİREN E-POSTALAR\n\nKullanıcının gelecekte belirli bir işlem yapması gerekiyorsa Aksiyon Gerektiren olarak sınıflandır.\n\nÖrneğin:\n\n\"Toplantı var arkadaşlar saat 21:00'da. Yarın.\"\n\n→ Önemli: EVET\n→ Aksiyon Gerektiriyor: EVET\n→ Çünkü kullanıcı toplantıya kat��lmalı veya toplantıyı planına eklemelidir.\n\nBaşka örnekler:\n\n\"Yarın saat 14:00'te doktor randevun var.\"\n\n→ Önemli + Aksiyon Gerektiriyor\n\n\"Sunumu cuma gününe kadar göndermen gerekiyor.\"\n\n→ Önemli + Aksiyon Gerektiriyor\n\n\"Toplantı 21:00'da, katılabilir misin?\"\n\n→ Önemli + Aksiyon Gerektiriyor + Cevap Gerektiriyor\n\n4. CEVAP GEREKTİREN E-POSTALAR\n\nKullanıcıdan açıkça veya dolaylı olarak cevap bekleniyorsa Cevap Gerektiren olarak sınıflandır.\n\n5. TARİH VE SAATLERİ ÖZEL OLARAK KONTROL ET\n\nHer e-postayı analiz ederken özellikle şunları ara:\n\nBugün\nYarın\nBu akşam\nPazartesi, salı vb.\nTarihler\nSaatler\nToplantı saatleri\nRandevu saatleri\nDeadline'lar\nSon başvuru tarihleri\n\nBir e-postada gelecekte gerçekleşecek bir etkinlik + tarih/saat varsa bunu önemli kabul et.\n\n6. RAPOR\n\nRaporu şu formatta oluştur:\n\n📧 GÜNLÜK E-POSTA RAPORU\n\n🔴 ÖNEMLİ / AKSİYON GEREKTİREN\n\nGönderen:\nKonu:\nÖzet:\nYapılması gereken:\nTarih/Saat:\n\n🟡 CEVAP GEREKTİREN\n\nGönderen:\nKonu:\nÖzet:\nVerilmesi gereken cevap:\n\n🟢 BİLGİLENDİRME\n\nGönderen:\nKonu:\nKısa özet:\n\n⚪ GEREKSİZ / REKLAM\n\n...\n\nÖNEMLİ: \"Önemli e-posta yok\" sonucunu ancak bugünkü e-postaların tamamını okuduktan ve yukarıdaki kriterlerin tamamını kontrol ettikten sonra ver.\n\nKullanıcıyla konuşma. Soru sorma. Açıklama yapma. Analizi tamamla ve raporu doğrudan e-posta olarak gönder.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        304,
+        208
+      ],
+      "id": "d23a47a2-c0a2-4876-a321-a16b95da63f7",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": 10,
+        "filters": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        448
+      ],
+      "id": "6c966ceb-b1f8-40ef-87a8-f2033b561a81",
+      "name": "Get many messages in Gmail",
+      "webhookId": "31d354d2-f8fd-4d82-9158-e9c9aac761ae",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "fHbHZFrMylrSvsPe",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "kaansalihumut@hotmail.com",
+        "subject": "Mail Özeti",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        656,
+        208
+      ],
+      "id": "6953a096-8848-4c0c-8674-dabe2e326432",
+      "name": "Send a message",
+      "webhookId": "fe699b0e-4524-4a49-995b-68544b7d1fda",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "fHbHZFrMylrSvsPe",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        176,
+        416
+      ],
+      "id": "fe7865f5-a88b-475a-aeca-85251f8c6ddc",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "SSAJm3T5GOAEeCHa",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many messages in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false,
+    "binaryMode": "separate"
+  },
+  "staticData": null,
+  "pinData": {},
+  "triggerCount": 0,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  }
+}
